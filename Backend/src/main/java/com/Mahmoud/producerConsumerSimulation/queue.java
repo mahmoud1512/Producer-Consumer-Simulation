@@ -39,4 +39,10 @@ public class queue {
         return this.queue.size();
     }
 
+    public void generateProducts(int numberOfProductsInTheInitialQueue)
+    {
+        for (int i = 0; i < numberOfProductsInTheInitialQueue; i++) {
+            queue.add(new Product(ColorPicker.getRandomColor()));
+        }
+    }
 }
