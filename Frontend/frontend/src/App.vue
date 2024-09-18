@@ -12,6 +12,7 @@
             <button @click="drawqueue()" class="tool" id="replay"> add queue</button>
             <button @click="drawmachine()" class="tool" id="replay">add machine</button>
             <button @click="drawlink()" class="tool" id="replay">add link</button>  
+            <button @click="clear()" class="tool">Clear</button>
             </div>
 
     
@@ -20,22 +21,23 @@
  <v-stage :config="configKonva" ref="stage" @click="drawpart">
     <v-layer>
 
-     <v-line
-        v-for="(line, index) in lines"
-        :key="index"
-        :config="{
-          x: 0,
-          y: 0,
-          points: line.points,
-          stroke: 'black',
-          strokeWidth: 4,
-          draggable: false,
-            lineCap: 'round',
-           lineJoin: 'round',
-
-        }"
-      ></v-line> 
- 
+     <v-arrow
+  v-for="(line, index) in lines"
+  :key="index"
+  :config="{
+    x: 0,
+    y: 0,
+    points: line.points,   
+    stroke: 'black',
+    strokeWidth: 4,
+    draggable: false,
+    lineCap: 'round',
+    lineJoin: 'round',
+    pointerLength: 10,     // Length of the arrowhead
+    pointerWidth: 10,      // Width of the arrowhead
+    fill: 'black',         // Fill color for the arrowhead
+  }"
+/>
 
       <v-rect
         v-for="(queue, index) in queues"
@@ -59,7 +61,7 @@
         :config="{
           x: machine.x,
           y: machine.y,
-          radius: 50,
+          radius: 40,
           fill: machine.fill,
           stroke: 'black',
           strokeWidth: 2,
@@ -151,7 +153,7 @@ export default  {
                       y: position.y,
                       fill:"rgb(128,128,128)",
                       strokeWidth:2,
-                      radius: 50,
+                      radius: 40,
                       id:"m"+String(this.machineid)
                     };
                     this.currenttext={
@@ -267,7 +269,7 @@ shapeClicked(type, index) {
           console.log(this.edge.source !== null);
             if (this.edge.source !== null) {
                 this.edge.destination = this.queues[index].id;
-                this.currentShape.points[2] = this.queues[index].x+35;
+                this.currentShape.points[2] = this.queues[index].x+70;
                 this.currentShape.points[3] = this.queues[index].y+30;
                 this.isdraw = false;
                 if(this.edge.source!==this.edge.destination)
@@ -286,7 +288,7 @@ shapeClicked(type, index) {
         } else if (type === "machine") {
             if (this.edge.source !== null) {
                 this.edge.destination = this.machines[index].id;
-                this.currentShape.points[2] = this.machines[index].x;
+                this.currentShape.points[2] = this.machines[index].x+this.machines[index].radius;
                 this.currentShape.points[3] = this.machines[index].y;
                 this.isdraw = false;
                 if(this.edge.source!==this.edge.destination)
@@ -307,138 +309,6 @@ shapeClicked(type, index) {
 },
 
 
-
-
-/*API STARTS HERE*/ 
- async start_simulation()
-    {
-        if(this.begin)
-        {
-          return;
-        }
-
-      this.begin=true;
-    let backend = [];
-    let obj = null;
-
-    for (let i = 0; i < this.graph.length; i++) {
-        let x = this.graph[i].source;
-        obj = {
-            source: x,
-            destination: []
-        };
-          let v=0;
-        for (let j = 0; j < this.graph.length; j++) {
-            if (this.graph[j].source === x) {
-                obj.destination[v]=this.graph[j].destination;
-                v++;
-            }
-        }
-
-        backend.push({ ...obj });
-    }
-    await fetch("http://localhost:8080/start", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(backend)
-            }).then(res=>res.json()).then(data=>this.products=data);
-
-          this.startFetching();
-        
-    },
-
-
-
-
-startFetching() {
-
-    console.log(this.queueid);  
-
-      if(!this.stop)
-      {
-              clearInterval(this.intervalId);         
-              this.intervalId = setInterval(this.fetchData_mach, 500);
-      }
-},
-
-
-
-async fetchData_mach() {
-this.confirm=false;
-
-  await fetch("http://localhost:8080/machines",{
-          method:"GET",
-      }).then(res=>res.json())
-        .then(data=>this.fetched = data)
-        for (let i = 0; i < this.fetched.length; i++) 
-            {
-              const fetchedItem = this.fetched[i];
-              if(fetchedItem.name[0] === 'm')
-                    {
-                      // Update shapes &tests array 
-                      const shapeIndex = this.shapes.findIndex(shape => shape.id === fetchedItem.name);
-                      if (shapeIndex !== -1) {
-                        this.shapes[shapeIndex].fill=fetchedItem.color
-                        this.texts[shapeIndex]=String(fetchedItem.time)    //time
-                      }
-                      // Update machines array 
-                      const machineIndex = this.machines.findIndex(machine => machine.id === fetchedItem.name);
-                      if (machineIndex !== -1) {
-                        this.machines[machineIndex].fill=fetchedItem.color  //color
-                      }
-
-                    
-                    }
-                   
-            }
-            this.fetchData_queue();
-    },
-
-async fetchData_queue()
-{
-       await fetch("http://localhost:8080/queues",{
-          method:"GET",
-      }).then(res=>res.json())
-        .then(data=>this.fetched = data)
-        for (let i = 0; i < this.fetched.length; i++) 
-            {
-              const fetchedItem = this.fetched[i];
-              if(fetchedItem.name[0] === 'q')
-                    {
-                      // Update texts array 
-                      const shapeIndex = this.shapes.findIndex(shape => shape.id === fetchedItem.name);
-                      if (shapeIndex !== -1) {
-                        this.texts[shapeIndex]=String(fetchedItem.nums)
-                        if(fetchedItem.name.substring(1)===String(this.queueid))    //if the name of queue is same as queueid(holds last queue id)
-                        {
-                           if(fetchedItem.nums===String(this.products))         //if the number is the same as we start then stop
-                           {
-                               this.stop=true;
-                           }
-                        }
-                      }
-                      
-                    }
-                   
-            }
-            this.confirm=true;
-},
-
-
-async replay()
-{
-    await fetch("http://localhost:8080/replay",{
-      method:"GET",
-    })
-
-
-    this.startFetching();
-    
-},
-
-
 toggleplaying()
 {
     if(this.confirm)
@@ -450,11 +320,20 @@ toggleplaying()
           this.startFetching();
         }
     }
+},
+
+clear()
+{
+   this.queues=[];
+   this.shapes=[];
+   this.machines=[];
+   this.lines=[];
+   this.texts=[];
+   //TODO:inform the front end with that
 }
 
 
-
-
+     //TODO:  WEBSOCKET Connection
 
 
   },
@@ -495,7 +374,7 @@ toggleplaying()
 
 #simulator
 {
-  height: 1000px;
+  height: 900px;
   background-image: url(https://images.freecreatives.com/wp-content/uploads/2016/04/Website-Backgrounds-For-Desktop.jpg);
   background-size: cover;
   background-repeat: no-repeat;
