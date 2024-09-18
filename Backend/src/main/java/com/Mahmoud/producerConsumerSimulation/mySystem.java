@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class System {
+public class mySystem {
     private  Map<String,Machine>MachinesMap=new HashMap<>();
     private  Map<String, queue> QueueMap=new HashMap<>();
     public void registerMachine(String id,Machine machine)

@@ -1,7 +1,7 @@
 package com.Mahmoud.producerConsumerSimulation;
 
 
-public class Machine {
+public class Machine implements Runnable{
     private long serviceTime;
     private String originalColor;
     private String currentColor;
@@ -10,6 +10,7 @@ public class Machine {
     private long startTime;
     private long endTime;
     private String id;
+    private mySystem system;
 
     public String getId() {
         return id;
@@ -74,19 +75,34 @@ public class Machine {
         this.currentColor = currentColor;
     }
 
-    //Working methods
-
-    public void processProduct()
+    public void addSystem(mySystem system)
     {
-        //TODO
+        this.system=system;
     }
     public void registerToMyFSQ()  //Observer pattern
     {
         this.firstStageQueue.AcceptObserver(this);
     }
-    public void createMomento()
-    {
-        //TODO
-    }
 
+    //Working method
+    @Override
+    public void run() {
+        while(true)
+        {
+            try {
+                Product product=firstStageQueue.getQueue().take();
+                this.currentColor=product.getColor();
+                // TODO: inform the frontend with the Color change and first stage products decline
+                long Start=java.lang.System.currentTimeMillis();
+                System.out.println(product.getName()+ " is taken from "+firstStageQueue.getId()+ " by "+ this.id);
+                Thread.sleep(serviceTime);
+                this.secondStageQueue.getQueue().add(product);
+                System.out.println(product.getName()+ " is added to "+secondStageQueue.getId()+" by "+this.id);
+                // TODO : inform the frontend with product addition
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+    }
 }

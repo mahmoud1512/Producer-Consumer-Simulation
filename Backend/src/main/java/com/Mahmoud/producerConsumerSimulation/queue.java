@@ -7,6 +7,7 @@ public class queue {
     private BlockingQueue<Product> queue;
     private ArrayList<Machine>observers=new ArrayList<>();
     private String id;
+    private mySystem system;
 
     public String getId() {
         return id;
@@ -23,13 +24,6 @@ public class queue {
     public void setQueue(BlockingQueue<Product> queue) {
         this.queue = queue;
     }
-    public synchronized void add(Product product) throws InterruptedException {
-        this.queue.put(product);
-    }
-    public synchronized Product take() throws InterruptedException {
-        return this.queue.take();
-    }
-
     public void AcceptObserver(Machine machine)
     {
         observers.add(machine);
@@ -42,7 +36,21 @@ public class queue {
     public void generateProducts(int numberOfProductsInTheInitialQueue)
     {
         for (int i = 0; i < numberOfProductsInTheInitialQueue; i++) {
-            queue.add(new Product(ColorPicker.getRandomColor()));
+            queue.add(new Product(ColorPicker.getRandomColor(), "Product"+ i));
         }
     }
+    public void addSystem(mySystem system)
+    {
+        this.system=system;
+    }
+
+    public mySystem getSystem() {
+        return system;
+    }
+
+    public void setSystem(mySystem system) {
+        this.system = system;
+    }
+
+
 }
