@@ -1,13 +1,12 @@
 package com.Mahmoud.producerConsumerSimulation;
 
-import java.util.ArrayList;
+
 import java.util.concurrent.BlockingQueue;
 
 public class queue {
     private BlockingQueue<Product> queue;
-    private ArrayList<Machine>observers=new ArrayList<>();
+
     private String id;
-    private mySystem system;
 
     public synchronized String getId() {
         return id;
@@ -24,10 +23,6 @@ public class queue {
     public void setQueue(BlockingQueue<Product> queue) {
         this.queue = queue;
     }
-    public void AcceptObserver(Machine machine)
-    {
-        observers.add(machine);
-    }
     public synchronized int checkSize()
     {
         return this.queue.size();
@@ -39,16 +34,7 @@ public class queue {
             queue.add(new Product(ColorPicker.getRandomColor(), "Product"+ i));
         }
     }
-    public void addSystem(mySystem system)
-    {
-        this.system=system;
-    }
 
-
-
-    public void setSystem(mySystem system) {
-        this.system = system;
-    }
 
 
 }

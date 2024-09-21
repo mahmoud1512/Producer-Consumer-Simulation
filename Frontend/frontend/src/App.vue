@@ -100,6 +100,8 @@
 </template>
 <script>
 import { ref } from "vue"
+import { Stomp } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 export default  {
   name:'App',
@@ -112,6 +114,7 @@ export default  {
           width: window.innerWidth,
           height: 800,
       },
+      stompClient:null,
       isdraw:false,
       lin:false,
       circ:false,
@@ -132,6 +135,11 @@ export default  {
       texts:[],
       fetched: [],
     };
+  },
+  mounted()
+  {
+  
+     this.connectToWebSocket();
   },
   methods: {
     drawpart()
@@ -309,19 +317,6 @@ shapeClicked(type, index) {
 },
 
 
-toggleplaying()
-{
-    if(this.confirm)
-    {
-        this.stop=!this.stop;
-   
-        if(!this.stop)
-        {
-          this.startFetching();
-        }
-    }
-},
-
 clear()
 {
    this.queues=[];
@@ -329,11 +324,51 @@ clear()
    this.machines=[];
    this.lines=[];
    this.texts=[];
-   //TODO:inform the front end with that
-}
+   //TODO:INFORM BACKEND 
+},
 
+connectToWebSocket() {
+      // Create the WebSocket connection
+      const socket = new SockJS('http://localhost:8083/ws'); 
+      this.stompClient = Stomp.over(socket);
 
-     //TODO:  WEBSOCKET Connection
+      this.stompClient.connect({}, (frame) => {
+        console.log('Connected: ' + frame);
+
+        // Subscribe to the topic from the backend
+        this.stompClient.subscribe('/topic/data', (message) => {
+          const receivedMessage = message.body;
+          this.handleMessage(receivedMessage);
+        });
+      });
+    },
+
+    sendMessageToBackend(message) {
+      this.stompClient.send("/app/receive", {}, JSON.stringify(message));  // '/app/receive' should match your backend mapping
+    },
+
+    handleMessage(message) {
+       const words=message.split(" ");
+       if(words[0][0]==='m')
+       {
+            const machine=this.machines.find((r)=>r.id===words[0])
+            machine.fill=words[1];  
+       }
+       else
+       { 
+           const text=this.texts.find((r)=>r.id===words[0])
+           text.text=words[1];
+       }
+
+    },
+  
+    start_simulation()
+    {
+         console.log(this.graph);
+         this.sendMessageToBackend(this.graph); 
+    }
+
+     
 
 
   },
