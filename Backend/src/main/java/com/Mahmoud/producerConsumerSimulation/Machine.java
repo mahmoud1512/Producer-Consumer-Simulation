@@ -3,14 +3,12 @@ package com.Mahmoud.producerConsumerSimulation;
 
 public class Machine implements Runnable{
     private long serviceTime;
-    private String originalColor;
+    private final String originalColor="#808080";
     private String currentColor;
     private queue firstStageQueue;   //will be my observable
     private queue secondStageQueue;
-    private long startTime;
-    private long endTime;
     private String id;
-    private mySystem system;
+    private mySystem systemService;
 
     public String getId() {
         return id;
@@ -28,13 +26,6 @@ public class Machine implements Runnable{
         this.serviceTime = serviceTime;
     }
 
-    public String getOriginalColor() {
-        return originalColor;
-    }
-
-    public void setOriginalColor(String originalColor) {
-        this.originalColor = originalColor;
-    }
 
     public queue getFirstStageQueue() {
         return firstStageQueue;
@@ -52,21 +43,6 @@ public class Machine implements Runnable{
         this.secondStageQueue = secondStageQueue;
     }
 
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
-    public long getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
-    }
     public String getCurrentColor() {
         return currentColor;
     }
@@ -75,14 +51,12 @@ public class Machine implements Runnable{
         this.currentColor = currentColor;
     }
 
-    public void addSystem(mySystem system)
+    public void addSystem(mySystem systemService)
     {
-        this.system=system;
+        this.systemService=systemService;
     }
-    public void registerToMyFSQ()  //Observer pattern
-    {
-        this.firstStageQueue.AcceptObserver(this);
-    }
+
+
 
     //Working method
     @Override
@@ -91,14 +65,13 @@ public class Machine implements Runnable{
         {
             try {
                 Product product=firstStageQueue.getQueue().take();
-                this.currentColor=product.getColor();
-                // TODO: inform the frontend with the Color change and first stage products decline
-                long Start=java.lang.System.currentTimeMillis();
-                System.out.println(product.getName()+ " is taken from "+firstStageQueue.getId()+ " by "+ this.id);
+                this.setCurrentColor(product.getColor());
+                systemService.tellFrontend(firstStageQueue.getId()+" "+firstStageQueue.checkSize());
+                systemService.tellFrontend(this.id+" "+this.getCurrentColor());
                 Thread.sleep(serviceTime);
                 this.secondStageQueue.getQueue().add(product);
-                System.out.println(product.getName()+ " is added to "+secondStageQueue.getId()+" by "+this.id);
-                // TODO : inform the frontend with product addition
+                systemService.tellFrontend(secondStageQueue.getId()+" "+secondStageQueue.checkSize());
+                systemService.tellFrontend(this.id+" "+this.originalColor);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

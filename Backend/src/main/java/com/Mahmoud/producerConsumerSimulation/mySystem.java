@@ -1,5 +1,6 @@
 package com.Mahmoud.producerConsumerSimulation;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -7,15 +8,18 @@ import java.util.Map;
 
 @Service
 public class mySystem {
-    private  Map<String,Machine>MachinesMap=new HashMap<>();
-    private  Map<String, queue> QueueMap=new HashMap<>();
-    public void registerMachine(String id,Machine machine)
+
+
+    @Autowired
+    private Controller controller;
+    public void CreateSystem()
     {
-        this.MachinesMap.put(id,machine);
+        //TODO: create System data
     }
-    public void registerQueue(String id,queue queue)
+
+    public synchronized void tellFrontend(String data)  //This method is created  especially not to allow objects to talk directly with the controller
     {
-        this.QueueMap.put(id,queue);
+        controller.sendToFrontend(data);
     }
 
 }

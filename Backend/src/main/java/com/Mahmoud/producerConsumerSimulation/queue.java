@@ -9,7 +9,7 @@ public class queue {
     private String id;
     private mySystem system;
 
-    public String getId() {
+    public synchronized String getId() {
         return id;
     }
 
@@ -44,9 +44,7 @@ public class queue {
         this.system=system;
     }
 
-    public mySystem getSystem() {
-        return system;
-    }
+
 
     public void setSystem(mySystem system) {
         this.system = system;
