@@ -1,11 +1,13 @@
 package com.Mahmoud.producerConsumerSimulation;
 
 
+import java.util.ArrayList;
+
 public class Machine implements Runnable{
     private long serviceTime;
     private final String originalColor="#808080";
     private String currentColor;
-    private queue firstStageQueue;   //will be my observable
+    private ArrayList<queue> firstStageQueues=new ArrayList<>() ;   //will be my observable
     private queue secondStageQueue;
     private String id;
     private mySystem systemService;
@@ -27,12 +29,10 @@ public class Machine implements Runnable{
     }
 
 
-    public queue getFirstStageQueue() {
-        return firstStageQueue;
-    }
+
 
     public void setFirstStageQueue(queue firstStageQueue) {
-        this.firstStageQueue = firstStageQueue;
+        this.firstStageQueues.add(firstStageQueue);
     }
 
     public queue getSecondStageQueue() {
@@ -64,14 +64,25 @@ public class Machine implements Runnable{
         while(true)
         {
             try {
-                Product product=firstStageQueue.getQueue().take();
-                this.setCurrentColor(product.getColor());
-                systemService.tellFrontend(firstStageQueue.getId()+" "+firstStageQueue.checkSize());
-                systemService.tellFrontend(this.id+" "+this.getCurrentColor());
-                Thread.sleep(serviceTime);
-                this.secondStageQueue.getQueue().add(product);
-                systemService.tellFrontend(secondStageQueue.getId()+" "+secondStageQueue.checkSize());
-                systemService.tellFrontend(this.id+" "+this.originalColor);
+                for (int i=0;i<firstStageQueues.size();i++) {
+                    queue firstStageQueue=firstStageQueues.get(i);
+                    if(firstStageQueue.checkSize()!=0)
+                    {
+                        systemService.tellFrontend(firstStageQueue.getId()+" "+firstStageQueue.checkSize());
+                        Product product=firstStageQueue.getQueue().take();
+                        this.setCurrentColor(product.getColor());
+                        systemService.tellFrontend(firstStageQueue.getId()+" "+firstStageQueue.checkSize());
+                        systemService.tellFrontend(this.id+" "+this.getCurrentColor());
+                        Thread.sleep(serviceTime);
+                        systemService.tellFrontend(secondStageQueue.getId()+" "+secondStageQueue.checkSize());
+                        this.secondStageQueue.getQueue().add(product);
+                        systemService.tellFrontend(secondStageQueue.getId()+" "+secondStageQueue.checkSize());
+                        systemService.tellFrontend(this.id+" "+this.originalColor);
+                    }
+
+                }
+
+
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

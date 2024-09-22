@@ -138,7 +138,7 @@ export default  {
   },
   mounted()
   {
-  
+    
      this.connectToWebSocket();
   },
   methods: {
@@ -324,7 +324,10 @@ clear()
    this.machines=[];
    this.lines=[];
    this.texts=[];
-   //TODO:INFORM BACKEND 
+   this.queueid=-1;
+   this.machineid=0;
+   this.sendClearMessageToBackend("Clear");
+   
 },
 
 connectToWebSocket() {
@@ -343,8 +346,12 @@ connectToWebSocket() {
       });
     },
 
-    sendMessageToBackend(message) {
+    sendSystemMessageToBackend(message) {
       this.stompClient.send("/app/receive", {}, JSON.stringify(message));  // '/app/receive' should match your backend mapping
+    },
+    
+    sendClearMessageToBackend(message) {
+      this.stompClient.send("/app/clear", {}, JSON.stringify(message));  // '/app/receive' should match your backend mapping
     },
 
     handleMessage(message) {
@@ -365,7 +372,7 @@ connectToWebSocket() {
     start_simulation()
     {
          console.log(this.graph);
-         this.sendMessageToBackend(this.graph); 
+         this.sendSystemMessageToBackend(this.graph); 
     }
 
      

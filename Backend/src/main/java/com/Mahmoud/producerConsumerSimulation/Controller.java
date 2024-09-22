@@ -27,6 +27,12 @@ public class Controller {
     {
        systemService.CreateSystem(data);
     }
+    @MessageMapping("/clear")
+    public void takeClearMessage(String data)
+    {
+        System.out.println(data);
+        this.systemService.clear();
+    }
 
 
     public void sendToFrontend(String message)

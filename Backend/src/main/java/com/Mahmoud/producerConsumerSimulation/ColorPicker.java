@@ -35,6 +35,9 @@ public class ColorPicker {
 
     public static String getRandomColor()
     {
-        return colors[(int) Math.round(Math.random()*25)];
+        int index=(int) Math.floor(Math.round(Math.random()*25));
+        if(index>24)
+            index--;
+        return colors[index];
     }
 }

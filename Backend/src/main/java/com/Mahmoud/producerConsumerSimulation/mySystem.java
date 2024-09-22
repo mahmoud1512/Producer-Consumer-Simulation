@@ -21,43 +21,21 @@ public class mySystem {
 
         for (messageObject object:data)
         {
-            System.out.println(object.getSource());
-            System.out.println(object.getDestination());
+
             if(object.getSource().charAt(0)=='m')
             {
-                if(!searchMachine(object.getSource()))
-                {
-                    Machine machine=new Machine();
-                    machine.setId(object.getSource());
-                    queue queue=new queue();
-                    queue.setId(object.getDestination());
-                    queue.setQueue(new LinkedBlockingQueue<>());
+
+                    Machine machine=searchMachine(object.getSource());
+                    queue queue=searchQueue(object.getDestination());
                     machine.setSecondStageQueue(queue);
-                    machine.addSystem(this);
-                    machine.setServiceTime((long) (Math.random()*1000));
-                    queueArrayList.add(queue);
-                    machineArrayList.add(machine);
-                }
+
             }
             else
             {
-                if(!searchQueue(object.getSource()))
-                {
-                    queue queue=new queue();
-                    queue.setId(object.getSource());
-                    queue.setQueue(new LinkedBlockingQueue<>());
-                    if(object.getSource().equals("q0"))
-                    {
-                        queue.generateProducts(10);
-                    }
-                    Machine machine=new Machine();
-                    machine.setServiceTime((long) (Math.random()*1000));
-                    machine.setId(object.getDestination());
-                    machine.setFirstStageQueue(queue);
-                    machine.addSystem(this);
-                    queueArrayList.add(queue);
-                    machineArrayList.add(machine);
-                }
+
+                  queue q=searchQueue(object.getSource());
+                  Machine machine=searchMachine(object.getDestination());
+                  machine.setFirstStageQueue(q);
             }
         }
         for (Machine m:machineArrayList) {
@@ -66,26 +44,42 @@ public class mySystem {
         }
     }
 
-    private boolean searchQueue(String source) {
+    private queue searchQueue(String source) {
         for (queue q:queueArrayList)
         {
             if (q.getId().equals(source))
-                return true;
+                return q;
         }
-        return false;
+        queue queue=new queue();
+        queue.setId(source);
+        queue.setQueue(new LinkedBlockingQueue<>());
+        if(source.equals("q0"))
+            queue.generateProducts(10);
+        queueArrayList.add(queue);
+        return queue;
     }
 
-    private boolean searchMachine(String source) {
+    private Machine searchMachine(String source) {
         for (Machine machine : machineArrayList) {
             if (machine.getId().equals(source))
-                return true;
+                return machine;
         }
-        return false;
+        Machine machine=new Machine();
+        machine.addSystem(this);
+        machine.setId(source);
+        machine.setServiceTime((long) (Math.random()*10000+100));
+        machineArrayList.add(machine);
+        return machine;
     }
 
     public synchronized void tellFrontend(String data)  //This method is created  especially not to allow objects to talk directly with the controller
     {
         controller.sendToFrontend(data);
+    }
+    public void clear()
+    {
+        this.machineArrayList=new ArrayList<>();
+        this.queueArrayList=new ArrayList<>();
     }
 
 }
