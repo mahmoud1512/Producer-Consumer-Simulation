@@ -1,10 +1,13 @@
 package com.Mahmoud.producerConsumerSimulation;
 
+import com.Mahmoud.producerConsumerSimulation.SnapShot.CareTaker;
+import com.Mahmoud.producerConsumerSimulation.SnapShot.Momento;
 import com.Mahmoud.producerConsumerSimulation.Socket.messageObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Service
@@ -16,6 +19,12 @@ public class mySystem {
    private int maxQueueID=Integer.MIN_VALUE;
     @Autowired
     private Controller controller;
+    private CareTaker careTaker=new CareTaker();
+
+    public  ArrayList<Momento> getMomentoes() {
+        return this.careTaker.getData();
+    }
+
     public void CreateSystem(messageObject[]data)
     {
 

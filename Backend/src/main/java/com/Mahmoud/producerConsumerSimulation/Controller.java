@@ -1,14 +1,18 @@
 package com.Mahmoud.producerConsumerSimulation;
 
 
+import com.Mahmoud.producerConsumerSimulation.SnapShot.CareTaker;
+import com.Mahmoud.producerConsumerSimulation.SnapShot.Momento;
 import com.Mahmoud.producerConsumerSimulation.Socket.messageObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 
@@ -32,6 +36,12 @@ public class Controller {
     {
         System.out.println(data);
         this.systemService.clear();
+    }
+    @MessageMapping("/replay")
+    @SendTo("/topic/replay")
+    public ArrayList<Momento>ReplaySimulation()
+    {
+        return systemService.getMomentoes();
     }
 
 
