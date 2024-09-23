@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class CareTaker {
     private ArrayList<Momento> Momentoes=new ArrayList<>();
-    public void addMomento(Momento momento)
+    public synchronized void addMomento(Momento momento)
     {
         Momentoes.add(momento);
     }
