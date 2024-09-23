@@ -29,6 +29,12 @@ public class mySystem {
                     Machine machine=searchMachine(object.getSource());
                     queue queue=searchQueue(object.getDestination());
                     machine.setSecondStageQueue(queue);
+                   int id=Integer.parseInt(queue.getId().substring(1));
+                  if(id>maxQueueID)
+                  {
+                      maxQueueID=id;
+                  }
+                System.out.println("Max is"+" "+maxQueueID);
 
             }
             else
@@ -36,15 +42,12 @@ public class mySystem {
 
 
                   queue q=searchQueue(object.getSource());
-                  int id=Integer.parseInt(q.getId().substring(1));
-                  if(id>maxQueueID)
-                  {
-                      maxQueueID=id;
-                  }
+
                   Machine machine=searchMachine(object.getDestination());
                   q.acceptObservers(machine);
                   if(q.getId().equals("q0")) {
                       size=q.checkSize();
+                      System.out.println(size);
                       machine.setFirstStageQueue(q);
                   }
 
@@ -94,16 +97,25 @@ public class mySystem {
     }
 
     public synchronized boolean checkEnd() {
-        if (getMaxIDSize()==size)
+        if (getMaxIDSize()==size) {
+            System.out.println("done");
+            for (queue queue:queueArrayList) {
+                if(queue.getId().equals("q"+maxQueueID))
+                    continue;
+                this.tellFrontend(queue.getId() + " " + 0);
+            }
             return true;
+        }
         return false;
     }
 
     private int getMaxIDSize() {
         for (queue queue:queueArrayList)
         {
-            if(queue.getId().equals("q"+maxQueueID))
-                return queue.checkSize();
+            if(queue.getId().equals("q"+maxQueueID)) {
+                int x=queue.checkSize();
+                return x;
+            }
         }
         return 0;
     }
