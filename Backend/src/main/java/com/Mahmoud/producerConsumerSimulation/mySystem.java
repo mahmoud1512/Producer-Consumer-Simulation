@@ -21,6 +21,13 @@ public class mySystem {
     private Controller controller;
     private CareTaker careTaker=new CareTaker();
 
+    public mySystem() {
+    }
+
+    public mySystem(Controller controller) {
+        this.controller = controller;
+    }
+
     public  ArrayList<Momento> getMomentoes() {
         return this.careTaker.getData();
     }

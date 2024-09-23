@@ -35,7 +35,7 @@ public class Controller {
     public void takeClearMessage(String data)
     {
         System.out.println(data);
-        this.systemService.clear();
+        this.systemService=new mySystem(this);
     }
     @MessageMapping("/replay")
     @SendTo("/topic/replay")
