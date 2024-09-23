@@ -19,7 +19,7 @@ public class mySystem {
    private int maxQueueID=Integer.MIN_VALUE;
     @Autowired
     private Controller controller;
-    private CareTaker careTaker=new CareTaker();
+    private CareTaker careTaker=new CareTaker();  //Composition relation
 
     public mySystem() {
     }
@@ -82,7 +82,7 @@ public class mySystem {
                 return q;
         }
 
-        queue queue=new queue(this,source,new LinkedBlockingQueue<>());
+        queue queue=new queue(this,source,new LinkedBlockingQueue<>(),this.careTaker);
 
 
         queueArrayList.add(queue);
@@ -97,6 +97,7 @@ public class mySystem {
         Machine machine=new Machine();
         machine.addSystem(this);
         machine.setId(source);
+        machine.addCareTaker(this.careTaker);
         machine.setServiceTime((long) (Math.random()*2000+100));
         machineArrayList.add(machine);
         return machine;
@@ -118,7 +119,9 @@ public class mySystem {
             for (queue queue:queueArrayList) {
                 if(queue.getId().equals("q"+maxQueueID))
                     continue;
-                this.tellFrontend(queue.getId() + " " + 0);
+                String data=queue.getId() + " " + 0;
+                this.careTaker.addMomento(new Momento(data));
+                this.tellFrontend(data);
             }
             return true;
         }

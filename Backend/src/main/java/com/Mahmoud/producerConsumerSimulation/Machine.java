@@ -1,6 +1,9 @@
 package com.Mahmoud.producerConsumerSimulation;
 
 
+import com.Mahmoud.producerConsumerSimulation.SnapShot.CareTaker;
+import com.Mahmoud.producerConsumerSimulation.SnapShot.Momento;
+
 import java.util.ArrayList;
 
 public class Machine implements Runnable{
@@ -11,6 +14,7 @@ public class Machine implements Runnable{
     private queue secondStageQueue;
     private String id;
     private mySystem systemService;
+    private  CareTaker careTaker;
 
     public String getId() {
         return id;
@@ -58,6 +62,9 @@ public class Machine implements Runnable{
         return this.firstStageQueues;
     }
 
+    public void addCareTaker(CareTaker careTaker) {
+        this.careTaker=careTaker;
+    }
 
     //Working method
     @Override
@@ -74,9 +81,19 @@ public class Machine implements Runnable{
                             continue;
                         }
                         this.setCurrentColor(product.getColor());
-                        systemService.tellFrontend(this.id + " " + this.getCurrentColor());
+
+                        String data=this.id + " " + this.getCurrentColor();
+                        careTaker.addMomento(new Momento(data));
+                        systemService.tellFrontend(data);
+
                         Thread.sleep(serviceTime);
-                        systemService.tellFrontend(this.id + " " + this.originalColor);
+                        data=Long.toString(serviceTime);
+                        careTaker.addMomento(new Momento("wait"+" "+data));
+
+                        data=this.id + " " + this.originalColor;
+                        careTaker.addMomento(new Momento(data));
+                        systemService.tellFrontend(data);
+
                         this.secondStageQueue.add(product);
 
                     }
@@ -93,4 +110,6 @@ public class Machine implements Runnable{
 
         }
     }
+
+
 }

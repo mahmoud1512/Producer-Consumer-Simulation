@@ -4,10 +4,6 @@
    
             <div id="toolbar">
             <button @click="start_simulation()" class="tool" id="start">Start Simulation <i class="fa-regular fa-circle-play"></i> </button>
-             <button @click="toggleplaying()" class="tool" id="toggle">
-              <span v-if='!this.stop'>pause <i class="fa-solid fa-pause"></i></span>
-              <span v-else>play <i class="fa-solid fa-play"></i></span> 
-            </button>
             <button @click="replay()" class="tool" id="replay">Replay <i class="fa-solid fa-reply"></i></button>
             <button @click="drawqueue()" class="tool" id="replay"> add queue</button>
             <button @click="drawmachine()" class="tool" id="replay">add machine</button>
