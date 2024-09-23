@@ -22,7 +22,7 @@ public class queue {
         this.queue=queue;
         this.careTaker=careTaker;
         if(id.equals("q0")) {
-            int x=(int) (Math.random() * 15)+5;
+            int x=(int) (Math.random() * 15+5);
             System.out.println(x);
             this.generateProducts(x);
         }

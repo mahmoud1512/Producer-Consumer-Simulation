@@ -98,6 +98,7 @@
 import { ref } from "vue"
 import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { forEach } from 'sockjs-client/lib/transport-list';
 
 export default  {
   name:'App',
@@ -326,6 +327,10 @@ clear()
    
 },
 
+delay(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+},
+
 connectToWebSocket() {
       // Create the WebSocket connection
       const socket = new SockJS('http://localhost:8083/ws'); 
@@ -334,14 +339,23 @@ connectToWebSocket() {
       this.stompClient.connect({}, (frame) => {
         console.log('Connected: ' + frame);
 
-        // Subscribe to the topic from the backend
         this.stompClient.subscribe('/topic/data', (message) => {
           const receivedMessage = message.body;
           this.handleMessage(receivedMessage);
         });
+
+        this.stompClient.subscribe('/topic/replay', (message) => {
+          const replayData = JSON.parse(message.body); 
+          this.handleReplay(replayData);  
+        });
       });
     },
 
+    
+    requestReplay() {
+      this.stompClient.send("/app/replay", {}, {});  // No message needed for replay, just trigger it
+    },
+   
     sendSystemMessageToBackend(message) {
       this.stompClient.send("/app/receive", {}, JSON.stringify(message));  // '/app/receive' should match your backend mapping
     },
@@ -364,11 +378,41 @@ connectToWebSocket() {
        }
 
     },
+   async handleReplay(replayData) {
+    console.log(replayData);  // Debugging output
+    for (let i = 0; i < replayData.length; i++) {
+        let order = replayData[i].snapShot;  // Corrected from `this.replayData`
+
+        const words = order.split(" ");
+        if (words[0][0] === 'm') {
+            const machine = this.machines.find((r) => r.id === words[0]);
+            if (machine) {
+                machine.fill = words[1];
+            } else {
+                console.warn(`Machine with id ${words[0]} not found.`);
+            }
+        } else if (words[0][0] === 'q') {
+            const text = this.texts.find((r) => r.id === words[0]);
+            if (text) {
+                text.text = words[1];
+            } else {
+                console.warn(`Text object with id ${words[0]} not found.`);
+            }
+        } else {
+            await this.delay(words[1]);  // Assuming words[1] is the delay in milliseconds
+        }
+    }
+},
+
   
     start_simulation()
     {
          console.log(this.graph);
          this.sendSystemMessageToBackend(this.graph); 
+    },
+    replay()
+    {
+        this.requestReplay();
     }
 
      

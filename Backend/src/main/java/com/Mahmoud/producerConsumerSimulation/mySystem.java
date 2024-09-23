@@ -132,8 +132,7 @@ public class mySystem {
         for (queue queue:queueArrayList)
         {
             if(queue.getId().equals("q"+maxQueueID)) {
-                int x=queue.checkSize();
-                return x;
+                return queue.checkSize();
             }
         }
         return 0;
