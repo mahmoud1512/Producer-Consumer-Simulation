@@ -5,8 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Service
@@ -14,10 +12,13 @@ public class mySystem {
 
    private ArrayList<Machine>machineArrayList=new ArrayList<>();
    private ArrayList<queue>queueArrayList=new ArrayList<>();
+   private int size;
+   private int maxQueueID=Integer.MIN_VALUE;
     @Autowired
     private Controller controller;
     public void CreateSystem(messageObject[]data)
     {
+
 
         for (messageObject object:data)
         {
@@ -33,11 +34,19 @@ public class mySystem {
             else
             {
 
+
                   queue q=searchQueue(object.getSource());
+                  int id=Integer.parseInt(q.getId().substring(1));
+                  if(id>maxQueueID)
+                  {
+                      maxQueueID=id;
+                  }
                   Machine machine=searchMachine(object.getDestination());
                   q.acceptObservers(machine);
-                  if(q.getId().equals("q0"))
-                    machine.setFirstStageQueue(q);
+                  if(q.getId().equals("q0")) {
+                      size=q.checkSize();
+                      machine.setFirstStageQueue(q);
+                  }
 
             }
         }
@@ -53,11 +62,10 @@ public class mySystem {
             if (q.getId().equals(source))
                 return q;
         }
-        queue queue=new queue();
-        queue.setId(source);
-        queue.setQueue(new LinkedBlockingQueue<>());
-        if(source.equals("q0"))
-            queue.generateProducts(10);
+
+        queue queue=new queue(this,source,new LinkedBlockingQueue<>());
+
+
         queueArrayList.add(queue);
         return queue;
     }
@@ -70,7 +78,7 @@ public class mySystem {
         Machine machine=new Machine();
         machine.addSystem(this);
         machine.setId(source);
-        machine.setServiceTime((long) (Math.random()*10000+100));
+        machine.setServiceTime((long) (Math.random()*2000+100));
         machineArrayList.add(machine);
         return machine;
     }
@@ -85,4 +93,18 @@ public class mySystem {
         this.queueArrayList=new ArrayList<>();
     }
 
+    public synchronized boolean checkEnd() {
+        if (getMaxIDSize()==size)
+            return true;
+        return false;
+    }
+
+    private int getMaxIDSize() {
+        for (queue queue:queueArrayList)
+        {
+            if(queue.getId().equals("q"+maxQueueID))
+                return queue.checkSize();
+        }
+        return 0;
+    }
 }

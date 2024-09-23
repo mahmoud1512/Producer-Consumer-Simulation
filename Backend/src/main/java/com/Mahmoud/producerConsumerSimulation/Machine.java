@@ -68,21 +68,22 @@ public class Machine implements Runnable{
                 synchronized (firstStageQueues) {
                     for (int i = 0; i < firstStageQueues.size(); i++) {
                         queue firstStageQueue = firstStageQueues.get(i);
-                        //systemService.tellFrontend(firstStageQueue.getId()+" "+firstStageQueue.checkSize());
                         Product product = firstStageQueue.take();
                         if (product == null) {
                             firstStageQueue.acceptObservers(this);
                             continue;
                         }
                         this.setCurrentColor(product.getColor());
-                        systemService.tellFrontend(firstStageQueue.getId() + " " + firstStageQueue.checkSize());
                         systemService.tellFrontend(this.id + " " + this.getCurrentColor());
                         Thread.sleep(serviceTime);
-                        systemService.tellFrontend(secondStageQueue.getId() + " " + secondStageQueue.checkSize());
-                        this.secondStageQueue.add(product);
-                        systemService.tellFrontend(secondStageQueue.getId() + " " + secondStageQueue.checkSize());
                         systemService.tellFrontend(this.id + " " + this.originalColor);
+                        this.secondStageQueue.add(product);
+
                     }
+                }
+                if(this.systemService.checkEnd())
+                {
+                    break;
                 }
 
 
