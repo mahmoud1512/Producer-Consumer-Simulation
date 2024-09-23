@@ -1,12 +1,14 @@
 package com.Mahmoud.producerConsumerSimulation;
 
 
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 
 public class queue {
     private BlockingQueue<Product> queue;
 
     private String id;
+    private ArrayList<Machine>observers=new ArrayList<>();
 
     public synchronized String getId() {
         return id;
@@ -36,5 +38,26 @@ public class queue {
     }
 
 
+    public Product take() throws InterruptedException {
+        if(this.checkSize()!=0)
+            return this.queue.take();
+        else
+            return null;
+    }
+    public void add(Product product)
+    {
+        this.queue.add(product);
+        for (Machine machine:observers) {
+            synchronized (machine.getFirstStageQueues())
+            {
+                if(!machine.getFirstStageQueues().contains(this))
+                   machine.getFirstStageQueues().add(this);
+            }
+        }
+    }
 
+    public void acceptObservers(Machine machine) {
+        if(!observers.contains(machine))
+           observers.add(machine);
+    }
 }

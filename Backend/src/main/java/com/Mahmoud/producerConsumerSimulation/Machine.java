@@ -35,9 +35,6 @@ public class Machine implements Runnable{
         this.firstStageQueues.add(firstStageQueue);
     }
 
-    public queue getSecondStageQueue() {
-        return secondStageQueue;
-    }
 
     public void setSecondStageQueue(queue secondStageQueue) {
         this.secondStageQueue = secondStageQueue;
@@ -56,6 +53,10 @@ public class Machine implements Runnable{
         this.systemService=systemService;
     }
 
+    public ArrayList<queue> getFirstStageQueues()
+    {
+        return this.firstStageQueues;
+    }
 
 
     //Working method
@@ -64,22 +65,24 @@ public class Machine implements Runnable{
         while(true)
         {
             try {
-                for (int i=0;i<firstStageQueues.size();i++) {
-                    queue firstStageQueue=firstStageQueues.get(i);
-                    if(firstStageQueue.checkSize()!=0)
-                    {
-                        systemService.tellFrontend(firstStageQueue.getId()+" "+firstStageQueue.checkSize());
-                        Product product=firstStageQueue.getQueue().take();
+                synchronized (firstStageQueues) {
+                    for (int i = 0; i < firstStageQueues.size(); i++) {
+                        queue firstStageQueue = firstStageQueues.get(i);
+                        //systemService.tellFrontend(firstStageQueue.getId()+" "+firstStageQueue.checkSize());
+                        Product product = firstStageQueue.take();
+                        if (product == null) {
+                            firstStageQueue.acceptObservers(this);
+                            continue;
+                        }
                         this.setCurrentColor(product.getColor());
-                        systemService.tellFrontend(firstStageQueue.getId()+" "+firstStageQueue.checkSize());
-                        systemService.tellFrontend(this.id+" "+this.getCurrentColor());
+                        systemService.tellFrontend(firstStageQueue.getId() + " " + firstStageQueue.checkSize());
+                        systemService.tellFrontend(this.id + " " + this.getCurrentColor());
                         Thread.sleep(serviceTime);
-                        systemService.tellFrontend(secondStageQueue.getId()+" "+secondStageQueue.checkSize());
-                        this.secondStageQueue.getQueue().add(product);
-                        systemService.tellFrontend(secondStageQueue.getId()+" "+secondStageQueue.checkSize());
-                        systemService.tellFrontend(this.id+" "+this.originalColor);
+                        systemService.tellFrontend(secondStageQueue.getId() + " " + secondStageQueue.checkSize());
+                        this.secondStageQueue.add(product);
+                        systemService.tellFrontend(secondStageQueue.getId() + " " + secondStageQueue.checkSize());
+                        systemService.tellFrontend(this.id + " " + this.originalColor);
                     }
-
                 }
 
 

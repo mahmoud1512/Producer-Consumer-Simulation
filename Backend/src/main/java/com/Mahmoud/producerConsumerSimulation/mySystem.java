@@ -35,7 +35,10 @@ public class mySystem {
 
                   queue q=searchQueue(object.getSource());
                   Machine machine=searchMachine(object.getDestination());
-                  machine.setFirstStageQueue(q);
+                  q.acceptObservers(machine);
+                  if(q.getId().equals("q0"))
+                    machine.setFirstStageQueue(q);
+
             }
         }
         for (Machine m:machineArrayList) {
