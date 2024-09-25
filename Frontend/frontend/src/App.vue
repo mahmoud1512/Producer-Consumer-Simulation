@@ -327,9 +327,7 @@ clear()
    
 },
 
-delay(milliseconds) {
-    return new Promise(resolve => setTimeout(resolve, milliseconds));
-},
+
 
 connectToWebSocket() {
       // Create the WebSocket connection
@@ -353,23 +351,25 @@ connectToWebSocket() {
 
     
     requestReplay() {
-      this.stompClient.send("/app/replay", {}, {});  // No message needed for replay, just trigger it
+      this.stompClient.send("/app/replay", {}, {});  
     },
    
     sendSystemMessageToBackend(message) {
-      this.stompClient.send("/app/receive", {}, JSON.stringify(message));  // '/app/receive' should match your backend mapping
+      this.stompClient.send("/app/receive", {}, JSON.stringify(message));  
     },
     
     sendClearMessageToBackend(message) {
-      this.stompClient.send("/app/clear", {}, JSON.stringify(message));  // '/app/receive' should match your backend mapping
+      this.stompClient.send("/app/clear", {}, JSON.stringify(message));  
     },
 
     handleMessage(message) {
+      console.log(message);
        const words=message.split(" ");
        if(words[0][0]==='m')
        {
-            const machine=this.machines.find((r)=>r.id===words[0])
+            const machine=this.machines.find((r)=>r.id===words[0]);
             machine.fill=words[1];  
+           
        }
        else
        { 
@@ -379,24 +379,17 @@ connectToWebSocket() {
 
     },
    async handleReplay(replayData) {
-    console.log(replayData);  // Debugging output
+    
+    for(let i=0;i<this.texts.length;i++)
+    {
+        this.texts[i].text=this.texts[i].id;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     for (let i = 0; i < replayData.length; i++) {
-        let order = replayData[i].snapShot;  
-
-        const words = order.split(" ");
-        if (words[0][0] === 'm') {
-            const machine = this.machines.find((r) => r.id === words[0]);
-            if (machine) {
-                machine.fill = words[1];
-            } 
-        } else if (words[0][0] === 'q') {
-            const text = this.texts.find((r) => r.id === words[0]);
-            if (text) {
-                text.text = words[1];
-            }
-        } else {
-            await this.delay(words[1]); 
-        }
+        let order = replayData[i].snapShot; 
+        this.handleMessage(String(order));
+       await new Promise(resolve => setTimeout(resolve, 250));
     }
 },
 

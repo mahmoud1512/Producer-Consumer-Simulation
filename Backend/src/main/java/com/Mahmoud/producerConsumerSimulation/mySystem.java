@@ -63,6 +63,9 @@ public class mySystem {
                   q.acceptObservers(machine);
                   if(q.getId().equals("q0")) {
                       size=q.checkSize();
+                      if(size==0)
+                          q.generateProducts(5);
+                      size=q.checkSize();
                       System.out.println(size);
                       machine.setFirstStageQueue(q);
                   }
@@ -82,7 +85,7 @@ public class mySystem {
                 return q;
         }
 
-        queue queue=new queue(this,source,new LinkedBlockingQueue<>(),this.careTaker);
+        queue queue=new queue(this, source, new LinkedBlockingQueue<>(), this.careTaker);
 
 
         queueArrayList.add(queue);

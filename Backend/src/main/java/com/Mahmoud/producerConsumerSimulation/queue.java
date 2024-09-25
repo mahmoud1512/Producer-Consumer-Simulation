@@ -23,6 +23,8 @@ public class queue {
         this.careTaker=careTaker;
         if(id.equals("q0")) {
             int x=(int) (Math.random() * 15+5);
+            if(x==0)
+                x=5;
             System.out.println(x);
             this.generateProducts(x);
         }
@@ -42,6 +44,7 @@ public class queue {
 
     public void generateProducts(int numberOfProductsInTheInitialQueue)
     {
+        this.queue=new LinkedBlockingQueue<>();
         for (int i = 0; i < numberOfProductsInTheInitialQueue; i++) {
             queue.add(new Product(ColorPicker.getRandomColor(), "Product"+ i));
         }
