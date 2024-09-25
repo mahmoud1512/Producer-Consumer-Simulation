@@ -87,8 +87,6 @@ public class Machine implements Runnable{
                         systemService.tellFrontend(data);
 
                         Thread.sleep(serviceTime);
-                        data=Long.toString(serviceTime);
-                        careTaker.addMomento(new Momento("wait"+" "+data));
 
                         data=this.id + " " + this.originalColor;
                         careTaker.addMomento(new Momento(data));

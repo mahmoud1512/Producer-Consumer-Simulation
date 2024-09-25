@@ -381,25 +381,21 @@ connectToWebSocket() {
    async handleReplay(replayData) {
     console.log(replayData);  // Debugging output
     for (let i = 0; i < replayData.length; i++) {
-        let order = replayData[i].snapShot;  // Corrected from `this.replayData`
+        let order = replayData[i].snapShot;  
 
         const words = order.split(" ");
         if (words[0][0] === 'm') {
             const machine = this.machines.find((r) => r.id === words[0]);
             if (machine) {
                 machine.fill = words[1];
-            } else {
-                console.warn(`Machine with id ${words[0]} not found.`);
-            }
+            } 
         } else if (words[0][0] === 'q') {
             const text = this.texts.find((r) => r.id === words[0]);
             if (text) {
                 text.text = words[1];
-            } else {
-                console.warn(`Text object with id ${words[0]} not found.`);
             }
         } else {
-            await this.delay(words[1]);  // Assuming words[1] is the delay in milliseconds
+            await this.delay(words[1]); 
         }
     }
 },
